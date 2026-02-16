@@ -2,6 +2,18 @@
 
 Second Brain web UI for OpenClaw: memory viewer, conversation browser, and markdown search.
 
+## Quick Install (Recommended)
+
+This is the **recommended** setup path (fully automated):
+
+```bash
+git clone git@github.com:janglimTARS/openclaw-second-brain.git
+cd openclaw-second-brain
+./install.sh
+```
+
+That’s it — three commands.
+
 ## 1) Prerequisites
 
 - Node.js 20+

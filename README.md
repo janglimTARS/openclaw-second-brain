@@ -2,9 +2,11 @@
 
 Second Brain web UI for OpenClaw: memory viewer, conversation browser, and markdown search.
 
-## Quick Install (Recommended)
+## Installation
 
-This is the **recommended** setup path (fully automated):
+### Option A (Recommended): Quick Automated Install (`install.sh`)
+
+Use this path unless you explicitly want to manage each setup step yourself.
 
 ```bash
 git clone git@github.com:janglimTARS/openclaw-second-brain.git
@@ -14,7 +16,24 @@ cd openclaw-second-brain
 
 That’s it — three commands.
 
-## 1) Prerequisites
+`install.sh` is fully automated and idempotent. It handles:
+
+1. Auto-detecting required paths and binaries
+2. `npm install` + `npm run build`
+3. Ensuring `conversations/` exists in your OpenClaw workspace
+4. Rendering launchd plists from templates (all placeholders)
+5. Reloading launch agents (`bootout` / `bootstrap` / `kickstart`)
+6. Optional Tailscale Serve setup (if `tailscale` exists)
+7. Verifying app + launchd services
+8. Printing a setup summary and access URLs
+
+> If you run `./install.sh`, you can skip the manual walkthrough below.
+
+## Manual Installation (Advanced / More Control)
+
+Use this only if you want to run each setup step yourself. The steps below are the manual equivalent of what `install.sh` automates.
+
+### 1) Prerequisites
 
 - Node.js 20+
 - npm
@@ -22,7 +41,7 @@ That’s it — three commands.
 - macOS + `launchctl` (only if you want auto-start)
 - Optional: Tailscale (`tailscale serve`)
 
-## 2) Clone and install
+### 2) Clone and install
 
 ```bash
 git clone git@github.com:janglimTARS/openclaw-second-brain.git
@@ -31,7 +50,7 @@ npm install
 cp .env.example .env.local
 ```
 
-## 3) Configure paths (required)
+### 3) Configure paths (required)
 
 Set `OPENCLAW_WORKSPACE`. Default is `~/.openclaw/workspace`.
 
@@ -49,7 +68,7 @@ export OPENCLAW_CONVERSATIONS_DIR="$OPENCLAW_WORKSPACE/conversations"
 export OPENCLAW_SESSIONS_DIR="$OPENCLAW_HOME/agents/main/sessions"
 ```
 
-## 4) Build and run
+### 4) Build and run
 
 Development:
 
@@ -68,7 +87,7 @@ OPENCLAW_WORKSPACE="$HOME/.openclaw/workspace" \
 
 App URL: `http://127.0.0.1:3333`
 
-## 5) Conversation logger daemon
+### 5) Conversation logger daemon
 
 Script is included at:
 
@@ -90,14 +109,14 @@ OPENCLAW_WORKSPACE="$HOME/.openclaw/workspace" \
 
 Logger output goes to `OPENCLAW_CONVERSATIONS_DIR` (default: `$OPENCLAW_WORKSPACE/conversations`).
 
-## 6) launchd auto-start (macOS)
+### 6) launchd auto-start (macOS)
 
 Templates:
 
 - `launchd/com.tars.second-brain.plist.template`
 - `launchd/com.tars.conversation-logger.plist.template`
 
-### 6a. Create concrete plists
+#### 6a. Create concrete plists
 
 Copy templates into `~/Library/LaunchAgents/` and replace all `__PLACEHOLDER__` tokens:
 
@@ -115,7 +134,7 @@ Required placeholders to replace:
 - `__SECOND_BRAIN_LOG_PATH__`
 - `__CONVERSATION_LOGGER_LOG_PATH__`
 
-### 6b. Load / reload services
+#### 6b. Load / reload services
 
 ```bash
 launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.tars.second-brain.plist 2>/dev/null || true
@@ -128,14 +147,14 @@ launchctl kickstart -k gui/$(id -u)/com.tars.second-brain
 launchctl kickstart -k gui/$(id -u)/com.tars.conversation-logger
 ```
 
-## 7) Optional: expose with Tailscale Serve
+### 7) Optional: expose with Tailscale Serve
 
 ```bash
 tailscale serve --bg 3334 http://127.0.0.1:3333
 tailscale serve status
 ```
 
-## 8) Notes for agents
+### 8) Notes for agents
 
 - Paths are environment-driven; no hardcoded user directory is required.
 - Runtime artifacts and local data are gitignored (`node_modules`, `.next`, `dist`, `.state.json`, logs, etc.).

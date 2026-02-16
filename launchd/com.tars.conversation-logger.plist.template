@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.tars.conversation-logger</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>__PYTHON3_PATH__</string>
+        <string>__SECOND_BRAIN_REPO_PATH__/scripts/conversation-logger-daemon.py</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>__CONVERSATION_LOGGER_LOG_PATH__</string>
+
+    <key>StandardErrorPath</key>
+    <string>__CONVERSATION_LOGGER_LOG_PATH__</string>
+
+    <key>WorkingDirectory</key>
+    <string>__OPENCLAW_WORKSPACE__</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>PYTHONUNBUFFERED</key>
+        <string>1</string>
+        <key>OPENCLAW_HOME</key>
+        <string>__OPENCLAW_HOME__</string>
+        <key>OPENCLAW_WORKSPACE</key>
+        <string>__OPENCLAW_WORKSPACE__</string>
+        <key>OPENCLAW_CONVERSATIONS_DIR</key>
+        <string>__OPENCLAW_CONVERSATIONS_DIR__</string>
+        <key>OPENCLAW_SESSIONS_DIR</key>
+        <string>__OPENCLAW_SESSIONS_DIR__</string>
+    </dict>
+</dict>
+</plist>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.tars.second-brain</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>__NPX_PATH__</string>
+        <string>next</string>
+        <string>start</string>
+        <string>-p</string>
+        <string>__SECOND_BRAIN_PORT__</string>
+        <string>-H</string>
+        <string>__SECOND_BRAIN_HOST__</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__SECOND_BRAIN_REPO_PATH__</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>__SECOND_BRAIN_LOG_PATH__</string>
+
+    <key>StandardErrorPath</key>
+    <string>__SECOND_BRAIN_LOG_PATH__</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>NODE_ENV</key>
+        <string>production</string>
+        <key>PORT</key>
+        <string>__SECOND_BRAIN_PORT__</string>
+        <key>HOST</key>
+        <string>__SECOND_BRAIN_HOST__</string>
+        <key>OPENCLAW_HOME</key>
+        <string>__OPENCLAW_HOME__</string>
+        <key>OPENCLAW_WORKSPACE</key>
+        <string>__OPENCLAW_WORKSPACE__</string>
+        <key>OPENCLAW_CONVERSATIONS_DIR</key>
+        <string>__OPENCLAW_CONVERSATIONS_DIR__</string>
+        <key>OPENCLAW_SESSIONS_DIR</key>
+        <string>__OPENCLAW_SESSIONS_DIR__</string>
+    </dict>
+</dict>
+</plist>

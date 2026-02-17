@@ -159,3 +159,86 @@ tailscale serve status
 - Paths are environment-driven; no hardcoded user directory is required.
 - Runtime artifacts and local data are gitignored (`node_modules`, `.next`, `dist`, `.state.json`, logs, etc.).
 - Do not commit local memory, conversations, session transcripts, tokens, or secrets.
+
+## API Endpoints
+
+Assuming the app is running locally on port `3333`, base URL is:
+
+```bash
+http://127.0.0.1:3333
+```
+
+### `GET /api/search?q=<query>`
+
+Fuzzy search across indexed markdown content.
+
+Returns an array of results with:
+
+- `path`
+- `name`
+- `category`
+- `excerpt`
+- `score`
+
+Example:
+
+```bash
+curl -s "http://127.0.0.1:3333/api/search?q=launchd" | jq
+```
+
+### `POST /api/search/recall`
+
+Recall-oriented search across indexed data, including markdown files and session JSONL messages.
+
+Request body fields:
+
+- `query` (string, required)
+- `limit` (number, optional)
+- `categories` (string[], optional)
+- `date_from` (string, optional)
+- `date_to` (string, optional)
+
+Supported categories:
+
+- `Memory`
+- `Conversations`
+- `Workspace`
+- `Sessions`
+
+Response items include:
+
+- `path`
+- `name`
+- `category`
+- `excerpt`
+- `context`
+- `score`
+
+Example:
+
+```bash
+curl -s -X POST "http://127.0.0.1:3333/api/search/recall" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "launchctl bootstrap failure",
+    "limit": 5,
+    "categories": ["Sessions", "Memory"],
+    "date_from": "2026-02-01",
+    "date_to": "2026-02-16"
+  }' | jq
+```
+
+### `GET /api/search/info`
+
+Returns indexing metadata:
+
+- `totalIndexedFiles`
+- `totalIndexedSessions`
+- `lastIndexUpdateTime`
+- `categoriesAvailable`
+
+Example:
+
+```bash
+curl -s "http://127.0.0.1:3333/api/search/info" | jq
+```

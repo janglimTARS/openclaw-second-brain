@@ -3,6 +3,8 @@
 import { FileNode } from '../types';
 import { useState } from 'react';
 
+export const CRON_CALENDAR_PATH = '__cron_calendar__';
+
 interface SidebarProps {
   files: FileNode[];
   onFileSelect: (path: string) => void;
@@ -44,6 +46,21 @@ export default function Sidebar({ files, onFileSelect, selectedFile }: SidebarPr
       </div>
 
       <div className="flex-1 overflow-y-auto scrollbar-thin p-4 space-y-4">
+        {/* Cron Calendar nav item */}
+        <div>
+          <button
+            onClick={() => onFileSelect(CRON_CALENDAR_PATH)}
+            className={`flex items-center gap-2 w-full text-left text-sm px-2 py-2 rounded border transition-colors ${
+              selectedFile === CRON_CALENDAR_PATH
+                ? 'bg-terminal-border border-terminal-green text-terminal-green'
+                : 'border-transparent text-terminal-dim hover:bg-terminal-bg hover:text-terminal-green'
+            }`}
+          >
+            <span>🕐</span>
+            <span className="font-bold">CRON CALENDAR</span>
+          </button>
+        </div>
+
         {sortedCategories.map(category => (
           <div key={category}>
             <button

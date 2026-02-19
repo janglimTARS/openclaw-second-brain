@@ -49,7 +49,6 @@ function parseCron(job: CronJob): ParsedCron {
   }
 
   // Parse cron expression "M H dom M dow"
-  // schedule is like "30 7 * * 1-5" or "0 * * * *"
   const parts = job.schedule.trim().split(/\s+/);
   if (parts.length < 5) {
     return {
@@ -179,25 +178,25 @@ export default function CronCalendar() {
 
   return (
     <div className="flex-1 overflow-y-auto scrollbar-thin">
-      <div className="max-w-5xl mx-auto p-8">
+      <div className="max-w-5xl mx-auto p-4 md:p-8">
 
-        {/* Header */}
-        <div className="mb-6 pb-4 border-b border-terminal-border flex items-start justify-between">
+        {/* Header — stacks on mobile */}
+        <div className="mb-6 pb-4 border-b border-terminal-border flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="text-xs text-terminal-dim mb-1 uppercase tracking-widest">Automation</div>
-            <h1 className="text-3xl font-bold text-terminal-green font-mono">🕐 Cron Calendar</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-terminal-green font-mono">🕐 Cron Calendar</h1>
             <p className="text-sm text-terminal-dim mt-1">
               {source === 'loading' && 'Fetching cron jobs…'}
               {source === 'live' && `${parsedCrons.length} jobs · live`}
               {source === 'fallback' && `${parsedCrons.length} jobs · fallback`}
             </p>
           </div>
-          <div className="flex gap-2 mt-1">
+          <div className="flex gap-2 sm:mt-1">
             {(['calendar', 'list'] as const).map(v => (
               <button
                 key={v}
                 onClick={() => setView(v)}
-                className={`px-3 py-1.5 rounded text-sm font-mono border transition-colors ${
+                className={`flex-1 sm:flex-none px-3 py-2 sm:py-1.5 rounded text-sm font-mono border transition-colors min-h-[44px] sm:min-h-0 ${
                   view === v
                     ? 'bg-terminal-green text-terminal-bg border-terminal-green'
                     : 'border-terminal-border text-terminal-dim hover:text-terminal-green hover:border-terminal-green'
@@ -210,7 +209,7 @@ export default function CronCalendar() {
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap gap-4 mb-6 text-xs">
+        <div className="flex flex-wrap gap-3 mb-6 text-xs">
           {[
             { dot: 'bg-amber-500',  label: 'Hourly'   },
             { dot: 'bg-blue-500',   label: 'Daily'    },
@@ -288,7 +287,7 @@ function WeeklyGrid({ parsedCrons, onSelect, selected }: {
           <div className="flex flex-wrap gap-2">
             {hourlyCrons.map(p => (
               <button key={p.job.id} onClick={() => onSelect(p)}
-                className={`px-2 py-1 rounded text-xs font-mono border transition-all ${
+                className={`px-2 py-1.5 min-h-[36px] rounded text-xs font-mono border transition-all ${
                   selected?.job.id === p.job.id
                     ? 'bg-amber-500 text-terminal-bg border-amber-400'
                     : 'bg-amber-900/40 text-amber-300 border-amber-700 hover:border-amber-400'
@@ -300,47 +299,49 @@ function WeeklyGrid({ parsedCrons, onSelect, selected }: {
         </div>
       )}
 
-      {/* Grid */}
-      <div className="bg-terminal-surface border border-terminal-border rounded-lg overflow-hidden">
-        {/* Day headers */}
-        <div className="grid border-b border-terminal-border" style={{ gridTemplateColumns: '4.5rem repeat(7, 1fr)' }}>
-          <div className="p-2 text-xs text-terminal-dim border-r border-terminal-border" />
-          {DAY_LABELS.map((day, i) => {
-            const isToday = DAY_OF_WEEK[i] === today;
-            return (
-              <div key={day} className={`p-2 text-center text-xs font-mono font-bold border-r border-terminal-border last:border-r-0 ${
-                isToday ? 'text-terminal-green bg-terminal-green/5' : 'text-terminal-amber'
-              }`}>
-                {day}
-                {isToday && <div className="w-1 h-1 bg-terminal-green rounded-full mx-auto mt-0.5" />}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Hour rows */}
-        {GRID_HOURS.map((hour, rowIdx) => (
-          <div key={hour}
-            className={`grid border-b border-terminal-border last:border-b-0 ${rowIdx % 2 === 0 ? '' : 'bg-terminal-bg/30'}`}
-            style={{ gridTemplateColumns: '4.5rem repeat(7, 1fr)', minHeight: '2.5rem' }}
-          >
-            <div className="p-1.5 text-xs text-terminal-dim font-mono border-r border-terminal-border flex items-center justify-center">
-              {formatTime(hour, 0)}
-            </div>
-            {DAY_LABELS.map((_, dayIdx) => (
-              <div key={dayIdx} className="p-1 border-r border-terminal-border last:border-r-0 flex flex-wrap gap-0.5 items-start content-start">
-                {gridMap[hour][dayIdx].map(p => (
-                  <button key={p.job.id} onClick={() => onSelect(p)}
-                    title={`${p.job.name} — ${p.humanSchedule}`}
-                    className={`w-2.5 h-2.5 rounded-full transition-all hover:scale-125 ${dotColor[p.type]} ${
-                      selected?.job.id === p.job.id ? 'ring-2 ring-white scale-125' : ''
-                    }`}
-                  />
-                ))}
-              </div>
-            ))}
+      {/* Grid — scrolls horizontally on mobile */}
+      <div className="overflow-x-auto -mx-4 md:mx-0 rounded-lg">
+        <div className="min-w-[480px] bg-terminal-surface border border-terminal-border rounded-lg overflow-hidden mx-4 md:mx-0">
+          {/* Day headers */}
+          <div className="grid border-b border-terminal-border" style={{ gridTemplateColumns: '4rem repeat(7, 1fr)' }}>
+            <div className="p-2 text-xs text-terminal-dim border-r border-terminal-border" />
+            {DAY_LABELS.map((day, i) => {
+              const isToday = DAY_OF_WEEK[i] === today;
+              return (
+                <div key={day} className={`p-2 text-center text-xs font-mono font-bold border-r border-terminal-border last:border-r-0 ${
+                  isToday ? 'text-terminal-green bg-terminal-green/5' : 'text-terminal-amber'
+                }`}>
+                  {day}
+                  {isToday && <div className="w-1 h-1 bg-terminal-green rounded-full mx-auto mt-0.5" />}
+                </div>
+              );
+            })}
           </div>
-        ))}
+
+          {/* Hour rows */}
+          {GRID_HOURS.map((hour, rowIdx) => (
+            <div key={hour}
+              className={`grid border-b border-terminal-border last:border-b-0 ${rowIdx % 2 === 0 ? '' : 'bg-terminal-bg/30'}`}
+              style={{ gridTemplateColumns: '4rem repeat(7, 1fr)', minHeight: '2.5rem' }}
+            >
+              <div className="p-1 text-xs text-terminal-dim font-mono border-r border-terminal-border flex items-center justify-center">
+                {formatTime(hour, 0)}
+              </div>
+              {DAY_LABELS.map((_, dayIdx) => (
+                <div key={dayIdx} className="p-1 border-r border-terminal-border last:border-r-0 flex flex-wrap gap-0.5 items-start content-start">
+                  {gridMap[hour][dayIdx].map(p => (
+                    <button key={p.job.id} onClick={() => onSelect(p)}
+                      title={`${p.job.name} — ${p.humanSchedule}`}
+                      className={`w-2.5 h-2.5 rounded-full transition-all hover:scale-125 ${dotColor[p.type]} ${
+                        selected?.job.id === p.job.id ? 'ring-2 ring-white scale-125' : ''
+                      }`}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* One-shot section */}
@@ -350,7 +351,7 @@ function WeeklyGrid({ parsedCrons, onSelect, selected }: {
           <div className="flex flex-wrap gap-2">
             {oneshotCrons.map(p => (
               <button key={p.job.id} onClick={() => onSelect(p)}
-                className={`px-2 py-1 rounded text-xs font-mono border transition-all ${
+                className={`px-2 py-1.5 min-h-[36px] rounded text-xs font-mono border transition-all ${
                   selected?.job.id === p.job.id
                     ? 'bg-gray-500 text-white border-gray-400'
                     : 'bg-gray-800/40 text-terminal-dim border-gray-700 hover:border-gray-500'
@@ -362,7 +363,7 @@ function WeeklyGrid({ parsedCrons, onSelect, selected }: {
         </div>
       )}
 
-      <p className="text-xs text-terminal-dim text-center">Click any dot or chip for details</p>
+      <p className="text-xs text-terminal-dim text-center">Tap any dot or chip for details</p>
     </div>
   );
 }
@@ -385,7 +386,7 @@ function ListView({ parsedCrons, typeLabel, statusDot, onSelect, selected }: {
     <div className="space-y-1.5">
       {parsedCrons.map(p => (
         <button key={p.job.id} onClick={() => onSelect(p)}
-          className={`w-full text-left flex items-center gap-3 p-3 rounded-lg border transition-all ${
+          className={`w-full text-left flex items-center gap-3 p-3 min-h-[52px] rounded-lg border transition-all ${
             selected?.job.id === p.job.id
               ? `${p.bgColor} ${p.borderColor}`
               : 'bg-terminal-surface border-terminal-border hover:border-terminal-dim'
@@ -432,10 +433,10 @@ function DetailPanel({ parsed, typeLabel, statusDot, onClose }: {
   return (
     <div className={`mt-6 p-4 rounded-lg border ${parsed.bgColor} ${parsed.borderColor} animate-fadeIn`}>
       <div className="flex items-start justify-between mb-4">
-        <h3 className={`font-mono font-bold text-lg ${parsed.color}`}>{job.name}</h3>
-        <button onClick={onClose} className="text-terminal-dim hover:text-terminal-text text-xl leading-none ml-4">×</button>
+        <h3 className={`font-mono font-bold text-base md:text-lg ${parsed.color} break-words flex-1`}>{job.name}</h3>
+        <button onClick={onClose} className="text-terminal-dim hover:text-terminal-text text-xl leading-none ml-4 min-w-[32px] min-h-[32px] flex items-center justify-center">×</button>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs font-mono">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 text-xs font-mono">
         {[
           ['Type',       typeLabel[parsed.type] ?? parsed.type],
           ['Schedule',   parsed.humanSchedule],
@@ -448,7 +449,7 @@ function DetailPanel({ parsed, typeLabel, statusDot, onClose }: {
         ].map(([label, val]) => (
           <div key={label}>
             <div className="text-terminal-dim uppercase tracking-widest mb-1">{label}</div>
-            <div className="text-terminal-text">{val}</div>
+            <div className="text-terminal-text break-words">{val}</div>
           </div>
         ))}
         <div className="col-span-2 sm:col-span-3">

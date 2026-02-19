@@ -1,8 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Sidebar from './components/Sidebar';
+import Sidebar, { CRON_CALENDAR_PATH } from './components/Sidebar';
 import ContentArea from './components/ContentArea';
+import CronCalendar from './components/CronCalendar';
 import SearchModal from './components/SearchModal';
 import { FileNode } from './types';
 
@@ -117,7 +118,11 @@ export default function Home() {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar files={files} onFileSelect={handleFileSelect} selectedFile={selectedFile} />
-      <ContentArea selectedFile={selectedFile} refreshVersion={contentRefreshVersion} />
+      {selectedFile === CRON_CALENDAR_PATH ? (
+        <CronCalendar />
+      ) : (
+        <ContentArea selectedFile={selectedFile} refreshVersion={contentRefreshVersion} />
+      )}
       <SearchModal
         isOpen={searchOpen}
         onClose={() => setSearchOpen(false)}

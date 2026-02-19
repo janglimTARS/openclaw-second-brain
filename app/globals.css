@@ -6,11 +6,25 @@ body {
   background-color: #0a0e14;
   color: #b3b9c5;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Prevent text resize on orientation change */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Better tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure touch targets are accessible */
+button, a {
+  touch-action: manipulation;
 }
 
 @layer utilities {
   .scrollbar-thin::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
+    height: 6px;
   }
   
   .scrollbar-thin::-webkit-scrollbar-track {
@@ -48,5 +62,13 @@ body {
 
   .animate-slideDown {
     animation: slideDown 0.3s ease-out;
+  }
+}
+
+/* Mobile: sidebar always in natural height (not overflow-hidden on body) */
+@media (max-width: 767px) {
+  /* Prevent double-tap zoom on buttons */
+  button {
+    touch-action: manipulation;
   }
 }

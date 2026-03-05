@@ -6,7 +6,7 @@ import { SearchResult } from '../types';
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onFileSelect: (path: string) => void;
+  onFileSelect: (path: string, line?: number) => void;
 }
 
 type SearchMode = 'text' | 'keyword' | 'semantic';
@@ -73,7 +73,7 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
       setSelectedIndex(prev => Math.max(prev - 1, 0));
     } else if (e.key === 'Enter' && results[selectedIndex]) {
       e.preventDefault();
-      onFileSelect(results[selectedIndex].path);
+      onFileSelect(results[selectedIndex].path, results[selectedIndex].line);
     } else if (e.key === 'Escape') {
       onClose();
     }
@@ -144,7 +144,7 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
           {results.map((result, index) => (
             <button
               key={`${result.path}-${index}`}
-              onClick={() => onFileSelect(result.path)}
+              onClick={() => onFileSelect(result.path, result.line)}
               className={`w-full text-left p-4 border-b border-terminal-border transition-colors min-h-[52px] ${
                 index === selectedIndex
                   ? 'bg-terminal-border'

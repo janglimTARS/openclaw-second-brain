@@ -14,6 +14,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [contentRefreshVersion, setContentRefreshVersion] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [scrollToLine, setScrollToLine] = useState<number | undefined>(undefined);
 
   const versionRef = useRef<number>(-1);
 
@@ -111,8 +112,9 @@ export default function Home() {
     };
   }, [loadFiles]);
 
-  const handleFileSelect = (path: string) => {
+  const handleFileSelect = (path: string, line?: number) => {
     setSelectedFile(path);
+    setScrollToLine(line);
     setSearchOpen(false);
     setSidebarOpen(false); // auto-close sidebar on mobile after selecting
   };
@@ -162,7 +164,7 @@ export default function Home() {
         {selectedFile === CRON_CALENDAR_PATH ? (
           <CronCalendar />
         ) : (
-          <ContentArea selectedFile={selectedFile} refreshVersion={contentRefreshVersion} />
+          <ContentArea selectedFile={selectedFile} refreshVersion={contentRefreshVersion} scrollToLine={scrollToLine} onScrollComplete={() => setScrollToLine(undefined)} />
         )}
       </div>
 

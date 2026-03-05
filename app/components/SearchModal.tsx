@@ -9,8 +9,17 @@ interface SearchModalProps {
   onFileSelect: (path: string) => void;
 }
 
+type SearchMode = 'text' | 'keyword' | 'semantic';
+
+const MODE_CONFIG: Record<SearchMode, { label: string; debounceMs: number }> = {
+  text: { label: 'Text', debounceMs: 150 },
+  keyword: { label: 'Keyword', debounceMs: 150 },
+  semantic: { label: 'Semantic', debounceMs: 300 },
+};
+
 export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchModalProps) {
   const [query, setQuery] = useState('');
+  const [mode, setMode] = useState<SearchMode>('keyword');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -21,6 +30,7 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
       setQuery('');
       setResults([]);
       setSelectedIndex(0);
+      setMode('keyword');
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
@@ -33,7 +43,12 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
 
     const debounce = setTimeout(() => {
       setLoading(true);
-      fetch(`/api/search?q=${encodeURIComponent(query)}`)
+      const endpoint =
+        mode === 'text'
+          ? `/api/search?q=${encodeURIComponent(query)}`
+          : `/api/semantic-search?q=${encodeURIComponent(query)}&mode=${mode}`;
+
+      fetch(endpoint)
         .then(res => res.json())
         .then(data => {
           setResults(data);
@@ -44,10 +59,10 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
           console.error('Search failed:', err);
           setLoading(false);
         });
-    }, 150);
+    }, MODE_CONFIG[mode].debounceMs);
 
     return () => clearTimeout(debounce);
-  }, [query]);
+  }, [query, mode]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
@@ -75,19 +90,41 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
         className="bg-terminal-surface border border-terminal-green rounded-lg shadow-2xl w-full max-w-2xl overflow-hidden animate-slideDown"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center gap-3 p-4 border-b border-terminal-border">
-          <span className="text-terminal-green text-lg">🔍</span>
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Search your second brain..."
-            className="flex-1 bg-transparent outline-none text-terminal-text placeholder-terminal-dim text-base"
-          />
-          {loading && <span className="text-terminal-dim animate-pulse">...</span>}
-          <kbd className="hidden md:inline px-2 py-1 text-xs bg-terminal-bg rounded border border-terminal-border text-terminal-dim">ESC</kbd>
+        <div className="flex flex-col gap-3 p-4 border-b border-terminal-border">
+          <div className="flex items-center gap-2">
+            {(['text', 'keyword', 'semantic'] as const).map((modeOption) => (
+              <button
+                key={modeOption}
+                type="button"
+                onClick={() => setMode(modeOption)}
+                className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                  mode === modeOption
+                    ? 'border-terminal-green text-terminal-green bg-terminal-bg'
+                    : 'border-terminal-border text-terminal-dim hover:text-terminal-text hover:border-terminal-dim'
+                }`}
+              >
+                {MODE_CONFIG[modeOption].label}
+              </button>
+            ))}
+            <span className="ml-auto text-[11px] uppercase tracking-wide text-terminal-dim">
+              Mode: {MODE_CONFIG[mode].label}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-terminal-green text-lg">🔍</span>
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Search your second brain..."
+              className="flex-1 bg-transparent outline-none text-terminal-text placeholder-terminal-dim text-base"
+            />
+            {loading && <span className="text-terminal-dim animate-pulse">...</span>}
+            <kbd className="hidden md:inline px-2 py-1 text-xs bg-terminal-bg rounded border border-terminal-border text-terminal-dim">ESC</kbd>
+          </div>
         </div>
 
         <div className="max-h-[60vh] md:max-h-96 overflow-y-auto scrollbar-thin">
@@ -106,7 +143,7 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
 
           {results.map((result, index) => (
             <button
-              key={result.path}
+              key={`${result.path}-${index}`}
               onClick={() => onFileSelect(result.path)}
               className={`w-full text-left p-4 border-b border-terminal-border transition-colors min-h-[52px] ${
                 index === selectedIndex
@@ -131,6 +168,7 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
           <span className="hidden md:inline"><kbd className="px-1.5 py-0.5 bg-terminal-surface rounded border border-terminal-border">↑↓</kbd> navigate</span>
           <span className="hidden md:inline"><kbd className="px-1.5 py-0.5 bg-terminal-surface rounded border border-terminal-border">⏎</kbd> select</span>
           <span><kbd className="px-1.5 py-0.5 bg-terminal-surface rounded border border-terminal-border">ESC</kbd> close</span>
+          <span className="hidden md:inline">search mode: {MODE_CONFIG[mode].label}</span>
           <span className="md:hidden text-terminal-dim">Tap a result to open</span>
         </div>
       </div>

@@ -63,6 +63,18 @@ button, a {
   .animate-slideDown {
     animation: slideDown 0.3s ease-out;
   }
+
+  @keyframes searchHighlight {
+    0% { background-color: rgba(0, 255, 65, 0.25); }
+    100% { background-color: transparent; }
+  }
+
+  .search-highlight {
+    animation: searchHighlight 2s ease-out;
+    border-left: 3px solid var(--terminal-green, #00ff41);
+    padding-left: 0.75rem;
+    border-radius: 2px;
+  }
 }
 
 /* Mobile: sidebar always in natural height (not overflow-hidden on body) */

@@ -12,6 +12,7 @@ export interface SearchResult {
   category: string;
   excerpt: string;
   score: number;
+  line?: number;
 }
 
 export interface FileContent {

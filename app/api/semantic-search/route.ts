@@ -67,6 +67,10 @@ function parseQmdOutput(output: string): SearchResult[] {
     const headerMatch = block.match(/^(qmd:\/\/[^\s]+)/);
     if (!headerMatch) continue;
 
+    // Extract line number before stripping
+    const lineMatch = headerMatch[1].match(/:(\d+)(?:\s|#|$)/);
+    const line = lineMatch ? parseInt(lineMatch[1], 10) : undefined;
+
     // Strip :linenum and #hash from the URI
     const rawUri = headerMatch[1].replace(/:\d+$/, '').replace(/#[a-f0-9]+$/i, '');
 
@@ -92,6 +96,7 @@ function parseQmdOutput(output: string): SearchResult[] {
       category: pathCategoryMap.get(normalizedPath) || getCategoryForPath(normalizedPath),
       excerpt,
       score,
+      ...(line !== undefined && { line }),
     });
   }
 

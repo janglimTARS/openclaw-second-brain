@@ -41,10 +41,15 @@ function resolveQmdPath(rawPath: string): string {
 }
 
 function parseQmdOutput(output: string): SearchResult[] {
-  const blocks = output
-    .split(/(?=^--- Result \d+ \(score: [^)]+\) ---$)/gm)
-    .map((block) => block.trim())
-    .filter(Boolean);
+  // QMD actual output format:
+  //   qmd://collection/path.md:line #hash
+  //   Title: ...
+  //   Score:  70%
+  //
+  //   @@ -linenum,ctx @@ (N before, M after)
+  //   content lines...
+  //
+  // Results are separated by double newlines before the next qmd:// URI.
 
   const pathCategoryMap = new Map(
     fileIndexService
@@ -54,30 +59,39 @@ function parseQmdOutput(output: string): SearchResult[] {
 
   const results: SearchResult[] = [];
 
+  // Split on lines that start with qmd:// or an absolute path
+  const blocks = output.split(/(?=^qmd:\/\/)/gm).filter((b) => b.trim());
+
   for (const block of blocks) {
-    const scoreMatch = block.match(/--- Result \d+ \(score: ([^)]+)\) ---/);
-    const fileMatch = block.match(/^File:\s*(.+)$/m);
-    const contentMatch = block.match(/^Content:\s*\n([\s\S]*)$/m);
+    // First line: qmd://collection/file.md:line #hash
+    const headerMatch = block.match(/^(qmd:\/\/[^\s]+)/);
+    if (!headerMatch) continue;
 
-    if (!fileMatch) {
-      continue;
-    }
+    // Strip :linenum and #hash from the URI
+    const rawUri = headerMatch[1].replace(/:\d+$/, '').replace(/#[a-f0-9]+$/i, '');
 
-    const resolvedPath = resolveQmdPath(fileMatch[1]);
-    const normalizedPath = path.resolve(path.normalize(resolvedPath));
-    const name = path.basename(normalizedPath);
-    const excerpt = (contentMatch?.[1] || '')
+    const scoreMatch = block.match(/^Score:\s*(\d+)%/m);
+    const score = scoreMatch ? parseInt(scoreMatch[1], 10) / 100 : 0;
+
+    const titleMatch = block.match(/^Title:\s*(.+)$/m);
+
+    // Extract content after the @@ line
+    const contextMatch = block.match(/^@@[^\n]*\n([\s\S]*?)$/m);
+    const excerpt = (contextMatch?.[1] || titleMatch?.[1] || '')
       .replace(/\s+/g, ' ')
       .trim()
       .slice(0, 320);
-    const parsedScore = Number.parseFloat(scoreMatch?.[1] || '');
+
+    const resolvedPath = resolveQmdPath(rawUri);
+    const normalizedPath = path.resolve(path.normalize(resolvedPath));
+    const name = path.basename(normalizedPath);
 
     results.push({
       path: normalizedPath,
       name,
       category: pathCategoryMap.get(normalizedPath) || getCategoryForPath(normalizedPath),
       excerpt,
-      score: Number.isFinite(parsedScore) ? parsedScore : 0,
+      score,
     });
   }
 

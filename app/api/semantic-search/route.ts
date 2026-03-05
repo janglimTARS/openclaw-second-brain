@@ -100,7 +100,8 @@ function parseQmdOutput(output: string): SearchResult[] {
     });
   }
 
-  return results;
+  // Filter out low-confidence results (noise floor is ~50-55% for unrelated content)
+  return results.filter((r) => r.score >= 0.6);
 }
 
 function buildFallbackIndex(): Fuse<IndexedFile> {

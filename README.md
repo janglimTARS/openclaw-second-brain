@@ -109,6 +109,37 @@ OPENCLAW_WORKSPACE="$HOME/.openclaw/workspace" \
 
 Logger output goes to `OPENCLAW_CONVERSATIONS_DIR` (default: `$OPENCLAW_WORKSPACE/conversations`).
 
+### Daily Digest Email (AgentMail)
+
+Script:
+
+- `scripts/daily-digest-email.py`
+
+Run a dry run:
+
+```bash
+OPENCLAW_WORKSPACE="$HOME/.openclaw/workspace" \
+  python3 scripts/daily-digest-email.py --dry-run
+```
+
+Send now:
+
+```bash
+OPENCLAW_WORKSPACE="$HOME/.openclaw/workspace" \
+  AGENTMAIL_API_KEY="$AGENTMAIL_API_KEY" \
+  python3 scripts/daily-digest-email.py --send
+```
+
+Optional env vars:
+
+- `DIGEST_INBOX` (default `TARSassistant@agentmail.to`)
+- `DIGEST_TO` (default `jackanglim3@gmail.com`)
+- `DIGEST_GCAL_ACCOUNT` (default `jackanglim3@gmail.com`)
+
+Launchd template for daily 7:00 AM send:
+
+- `launchd/com.tars.second-brain-daily-digest.plist.template`
+
 ### 6) launchd auto-start (macOS)
 
 Templates:

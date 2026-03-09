@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.tars.second-brain-daily-digest</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>__PYTHON3_PATH__</string>
+        <string>__SECOND_BRAIN_REPO_PATH__/scripts/daily-digest-email.py</string>
+        <string>--send</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__SECOND_BRAIN_REPO_PATH__</string>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>7</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>__DAILY_DIGEST_LOG_PATH__</string>
+
+    <key>StandardErrorPath</key>
+    <string>__DAILY_DIGEST_LOG_PATH__</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>OPENCLAW_WORKSPACE</key>
+        <string>__OPENCLAW_WORKSPACE__</string>
+        <key>OPENCLAW_CONVERSATIONS_DIR</key>
+        <string>__OPENCLAW_CONVERSATIONS_DIR__</string>
+        <key>AGENTMAIL_API_KEY</key>
+        <string>__AGENTMAIL_API_KEY__</string>
+        <key>DIGEST_INBOX</key>
+        <string>__DIGEST_INBOX__</string>
+        <key>DIGEST_TO</key>
+        <string>__DIGEST_TO__</string>
+        <key>DIGEST_GCAL_ACCOUNT</key>
+        <string>__DIGEST_GCAL_ACCOUNT__</string>
+    </dict>
+</dict>
+</plist>

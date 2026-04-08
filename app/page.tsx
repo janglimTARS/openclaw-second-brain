@@ -120,22 +120,22 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-transparent">
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center gap-3 px-4 h-12 bg-terminal-surface border-b border-terminal-border">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center gap-3 px-4 h-14 glass-panel border-b border-terminal-border">
         <button
           onClick={() => setSidebarOpen(prev => !prev)}
-          className="flex flex-col gap-1 p-2 -ml-2 rounded hover:bg-terminal-bg transition-colors"
+          className="flex flex-col gap-1 p-2 -ml-2 rounded-md hover:bg-terminal-bg/60 transition-colors"
           aria-label="Toggle menu"
         >
           <span className="block w-5 h-0.5 bg-terminal-green" />
           <span className="block w-5 h-0.5 bg-terminal-green" />
           <span className="block w-5 h-0.5 bg-terminal-green" />
         </button>
-        <h1 className="text-sm font-bold text-terminal-green font-mono tracking-widest">SECOND BRAIN</h1>
+        <h1 className="text-sm font-semibold text-terminal-text font-display tracking-wide">Second Brain</h1>
         <button
           onClick={() => setSearchOpen(true)}
-          className="ml-auto p-2 text-terminal-dim hover:text-terminal-green transition-colors"
+          className="ml-auto p-2 text-terminal-dim hover:text-terminal-text transition-colors"
           aria-label="Search"
         >
           🔍
@@ -154,13 +154,13 @@ export default function Home() {
       {/* Mobile overlay backdrop */}
       {sidebarOpen && (
         <div
-          className="md:hidden fixed inset-0 z-20 bg-black/60 backdrop-blur-sm"
+          className="md:hidden fixed inset-0 z-20 bg-black/65 backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main content — offset on mobile for the top bar */}
-      <div className="flex-1 flex flex-col overflow-hidden pt-12 md:pt-0">
+      <div className="flex-1 flex flex-col overflow-hidden pt-14 md:pt-0">
         {selectedFile === CRON_CALENDAR_PATH ? (
           <CronCalendar />
         ) : (
@@ -175,8 +175,8 @@ export default function Home() {
       />
 
       {loading && (
-        <div className="fixed inset-0 bg-terminal-bg/80 flex items-center justify-center z-50">
-          <div className="text-terminal-green animate-pulse">Loading index...</div>
+        <div className="fixed inset-0 bg-terminal-bg/85 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="text-terminal-muted animate-pulse text-sm tracking-wide">Loading index...</div>
         </div>
       )}
     </div>

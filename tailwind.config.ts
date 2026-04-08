@@ -10,17 +10,21 @@ const config: Config = {
     extend: {
       colors: {
         terminal: {
-          bg: '#0a0e14',
-          surface: '#15191f',
-          border: '#1f2328',
-          text: '#b3b9c5',
-          green: '#39ff14',
-          amber: '#ffb700',
-          dim: '#6b7280',
+          bg: '#090d13',
+          surface: '#111822',
+          panel: '#141d2a',
+          border: '#263345',
+          text: '#d1dae8',
+          muted: '#9ca8bc',
+          dim: '#708099',
+          green: '#64e79a',
+          amber: '#f4c46a',
         }
       },
       fontFamily: {
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        sans: ['var(--font-body)', 'sans-serif'],
+        display: ['var(--font-display)', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       }
     },
   },

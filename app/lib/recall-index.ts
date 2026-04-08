@@ -57,7 +57,7 @@ function mapToRecallCategory(category: string): RecallCategory | null {
     return category;
   }
 
-  if (category === 'Long-term' || category === 'Workspace Docs' || category === 'Reports') {
+  if (category === 'Long-term' || category === 'Workspace Docs' || category === 'Reports' || category === 'Golf') {
     return 'Workspace';
   }
 

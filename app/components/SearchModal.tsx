@@ -83,23 +83,23 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
 
   return (
     <div 
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center pt-[10vh] md:pt-[20vh] z-50 animate-fadeIn px-4 md:px-0"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-start justify-center pt-[10vh] md:pt-[16vh] z-50 animate-fadeIn px-4 md:px-0"
       onClick={onClose}
     >
       <div 
-        className="bg-terminal-surface border border-terminal-green rounded-lg shadow-2xl w-full max-w-2xl overflow-hidden animate-slideDown"
+        className="glass-panel rounded-2xl w-full max-w-3xl overflow-hidden animate-slideDown"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex flex-col gap-3 p-4 border-b border-terminal-border">
+        <div className="flex flex-col gap-4 p-5 border-b border-terminal-border">
           <div className="flex items-center gap-2">
             {(['text', 'keyword', 'semantic'] as const).map((modeOption) => (
               <button
                 key={modeOption}
                 type="button"
                 onClick={() => setMode(modeOption)}
-                className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+                className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
                   mode === modeOption
-                    ? 'border-terminal-green text-terminal-green bg-terminal-bg'
+                    ? 'border-terminal-green/70 text-terminal-text bg-terminal-panel'
                     : 'border-terminal-border text-terminal-dim hover:text-terminal-text hover:border-terminal-dim'
                 }`}
               >
@@ -111,8 +111,8 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-terminal-green text-lg">🔍</span>
+          <div className="flex items-center gap-3 bg-terminal-bg/55 border border-terminal-border rounded-xl px-3 py-2.5">
+            <span className="text-terminal-dim text-lg">🔍</span>
             <input
               ref={inputRef}
               type="text"
@@ -145,14 +145,14 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
             <button
               key={`${result.path}-${index}`}
               onClick={() => onFileSelect(result.path, result.line)}
-              className={`w-full text-left p-4 border-b border-terminal-border transition-colors min-h-[52px] ${
+              className={`w-full text-left p-4 border-b border-terminal-border/80 transition-colors min-h-[56px] ${
                 index === selectedIndex
-                  ? 'bg-terminal-border'
-                  : 'hover:bg-terminal-bg'
+                  ? 'bg-terminal-panel'
+                  : 'hover:bg-terminal-bg/60'
               }`}
             >
               <div className="flex items-start justify-between gap-2 mb-1">
-                <div className="font-bold text-terminal-green text-sm">{result.name}</div>
+                <div className="font-semibold text-terminal-text text-sm">{result.name}</div>
                 <div className="text-xs text-terminal-dim flex-shrink-0">{result.category}</div>
               </div>
               {result.excerpt && (
@@ -164,7 +164,7 @@ export default function SearchModal({ isOpen, onClose, onFileSelect }: SearchMod
           ))}
         </div>
 
-        <div className="p-3 border-t border-terminal-border bg-terminal-bg text-xs text-terminal-dim flex gap-4">
+        <div className="p-3.5 border-t border-terminal-border bg-terminal-bg/70 text-xs text-terminal-dim flex gap-4">
           <span className="hidden md:inline"><kbd className="px-1.5 py-0.5 bg-terminal-surface rounded border border-terminal-border">↑↓</kbd> navigate</span>
           <span className="hidden md:inline"><kbd className="px-1.5 py-0.5 bg-terminal-surface rounded border border-terminal-border">⏎</kbd> select</span>
           <span><kbd className="px-1.5 py-0.5 bg-terminal-surface rounded border border-terminal-border">ESC</kbd> close</span>

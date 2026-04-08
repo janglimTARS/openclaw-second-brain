@@ -1,5 +1,18 @@
 import type { Metadata, Viewport } from "next";
+import { Manrope, Syne } from 'next/font/google';
 import "./globals.css";
+
+const bodyFont = Manrope({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-body',
+});
+
+const displayFont = Syne({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-display',
+});
 
 export const metadata: Metadata = {
   title: "Second Brain - TARS",
@@ -19,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className={`${bodyFont.variable} ${displayFont.variable} antialiased`}>
         {children}
       </body>
     </html>

@@ -2,42 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #0a0e14;
-  color: #b3b9c5;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  /* Prevent text resize on orientation change */
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+:root {
+  --bg: #090d13;
+  --surface: #111822;
+  --panel: #141d2a;
+  --border: #263345;
+  --text: #d1dae8;
+  --muted: #9ca8bc;
+  --accent: #64e79a;
 }
 
-/* Better tap highlight on mobile */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Ensure touch targets are accessible */
-button, a {
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(1200px 700px at 15% -10%, rgba(100, 231, 154, 0.08), transparent 55%),
+    radial-gradient(900px 600px at 100% 0%, rgba(119, 143, 255, 0.08), transparent 50%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-body), sans-serif;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+button,
+a {
   touch-action: manipulation;
 }
 
+::selection {
+  background: rgba(100, 231, 154, 0.25);
+  color: #f3f7ff;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  kbd {
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    background: var(--surface);
+    border-radius: 0.4rem;
+    font-size: 0.72rem;
+    padding: 0.12rem 0.4rem;
+  }
+}
+
 @layer utilities {
+  .glass-panel {
+    background: linear-gradient(180deg, rgba(20, 29, 42, 0.9), rgba(17, 24, 34, 0.9));
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 14px 30px rgba(3, 7, 18, 0.4);
+    backdrop-filter: blur(10px);
+  }
+
   .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar-track {
-    background-color: #0a0e14;
+    background-color: #0d121a;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #1f2328;
-    border-radius: 0.25rem;
+    background-color: #2f3e52;
+    border-radius: 9999px;
+    border: 2px solid #0d121a;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: #6b7280;
+    background-color: #4a5f7f;
   }
 
   @keyframes fadeIn {
@@ -48,11 +98,11 @@ button, a {
   @keyframes slideDown {
     from {
       opacity: 0;
-      transform: translateY(-20px);
+      transform: translateY(-16px) scale(0.99);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
   }
 
@@ -61,26 +111,55 @@ button, a {
   }
 
   .animate-slideDown {
-    animation: slideDown 0.3s ease-out;
+    animation: slideDown 0.24s ease-out;
   }
 
   @keyframes searchHighlight {
-    0% { background-color: rgba(0, 255, 65, 0.25); }
+    0% { background-color: rgba(100, 231, 154, 0.22); }
     100% { background-color: transparent; }
   }
 
   .search-highlight {
-    animation: searchHighlight 2s ease-out;
-    border-left: 3px solid var(--terminal-green, #00ff41);
+    animation: searchHighlight 1.8s ease-out;
+    border-left: 3px solid var(--accent);
     padding-left: 0.75rem;
-    border-radius: 2px;
+    border-radius: 0.35rem;
   }
 }
 
-/* Mobile: sidebar always in natural height (not overflow-hidden on body) */
 @media (max-width: 767px) {
-  /* Prevent double-tap zoom on buttons */
   button {
     touch-action: manipulation;
   }
+}
+
+/* Interactive checkboxes */
+.checkbox-interactive {
+  cursor: pointer;
+  width: 1rem;
+  height: 1rem;
+  accent-color: #64e79a;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.task-list-item {
+  display: flex;
+  align-items: baseline;
+  list-style: none !important;
+}
+
+.task-checked > p,
+.task-checked > span {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+/* When there's no wrapper element around the text */
+.task-checked {
+  color: rgba(255, 255, 255, 0.4);
+}
+.task-checked:not(:has(p)):not(:has(span)) {
+  text-decoration: line-through;
 }

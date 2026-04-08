@@ -29,6 +29,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Not a file' }, { status: 400 });
     }
 
+    // If it's a PDF, serve it with correct Content-Type
+    if (normalizedPath.toLowerCase().endsWith('.pdf')) {
+      const fileBuffer = fs.readFileSync(normalizedPath);
+      return new NextResponse(fileBuffer, {
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `inline; filename="${path.basename(normalizedPath)}"`,
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      });
+    }
+
     const content = fs.readFileSync(normalizedPath, 'utf-8');
 
     return NextResponse.json(

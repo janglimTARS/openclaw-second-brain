@@ -13,7 +13,7 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-const categoryOrder = ['Memory', 'Conversations', 'Golf', 'FE Study', 'Research', 'Project Ideas', 'Skills (Custom)', 'Skills (Bundled)', 'Long-term', 'Workspace Docs', 'Reports', 'Sessions'];
+const categoryOrder = ['Memory', 'Conversations', 'Golf', 'FE Study', 'Research', 'Project Ideas', 'Knowledge', 'Miscellaneous', 'Skills (Custom)', 'Skills (Bundled)', 'Long-term', 'Workspace Docs', 'Reports', 'Sessions'];
 const categoryIcons: Record<string, string> = {
   'Memory': '🧠',
   'Conversations': '💬',
@@ -21,6 +21,8 @@ const categoryIcons: Record<string, string> = {
   'FE Study': '📚',
   'Research': '🔍',
   'Project Ideas': '💡',
+  'Knowledge': '🧭',
+  'Miscellaneous': '📁',
   'Skills (Custom)': '🔧',
   'Skills (Bundled)': '📦',
   'Long-term': '💾',

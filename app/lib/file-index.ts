@@ -54,6 +54,12 @@ export const REPORTS_DIR = resolveConfigPath(
 export const PROJECT_IDEAS_DIR = resolveConfigPath(
   path.join(WORKSPACE_ROOT, 'project-ideas')
 );
+export const MISCELLANEOUS_DIR = resolveConfigPath(
+  path.join(WORKSPACE_ROOT, 'miscellaneous')
+);
+export const KNOWLEDGE_DIR = resolveConfigPath(
+  path.join(WORKSPACE_ROOT, 'knowledge')
+);
 
 // Custom skills (local) and bundled OpenClaw skills
 const DEFAULT_OPENCLAW_SKILLS = '/opt/homebrew/lib/node_modules/openclaw/skills';
@@ -87,6 +93,8 @@ const WATCH_TARGETS = [
   { target: RESEARCH_DIR, depth: 5 },
   { target: REPORTS_DIR, depth: 5 },
   { target: PROJECT_IDEAS_DIR, depth: 5 },
+  { target: MISCELLANEOUS_DIR, depth: 5 },
+  { target: KNOWLEDGE_DIR, depth: 5 },
   { target: CUSTOM_SKILLS_DIR, depth: 2 },
   { target: BUNDLED_SKILLS_DIR, depth: 2 },
 ] as const;
@@ -139,6 +147,49 @@ function scanMarkdownDirectory(dirPath: string, category: string): FileNode[] {
     console.error(`[second-brain] Failed to scan ${dirPath}:`, error);
   }
 
+  return files;
+}
+
+function scanMarkdownDirectoryRecursive(dirPath: string, category: string): FileNode[] {
+  const files: FileNode[] = [];
+
+  if (!fs.existsSync(dirPath)) {
+    return files;
+  }
+
+  const walk = (currentDir: string) => {
+    try {
+      const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+
+      for (const entry of entries) {
+        if (isHidden(entry.name)) {
+          continue;
+        }
+
+        const fullPath = path.join(currentDir, entry.name);
+
+        if (entry.isDirectory()) {
+          walk(fullPath);
+          continue;
+        }
+
+        if (!entry.isFile() || !entry.name.endsWith('.md')) {
+          continue;
+        }
+
+        files.push({
+          name: path.relative(dirPath, fullPath),
+          path: fullPath,
+          category,
+          type: 'file',
+        });
+      }
+    } catch (error) {
+      console.error(`[second-brain] Failed to scan ${currentDir}:`, error);
+    }
+  };
+
+  walk(dirPath);
   return files;
 }
 
@@ -294,11 +345,14 @@ function scanAllFiles(): FileNode[] {
   allFiles.push(...scanMarkdownDirectory(MEMORY_DIR, 'Memory'));
   allFiles.push(...scanMarkdownDirectory(CONVERSATIONS_DIR, 'Conversations'));
   allFiles.push(...scanMarkdownDirectory(GOLF_DIR, 'Golf'));
-  allFiles.push(...scanMarkdownDirectory(FE_STUDY_DIR, 'FE Study'));
+  allFiles.push(...scanMarkdownDirectoryRecursive(FE_STUDY_DIR, 'FE Study'));
   allFiles.push(...scanMarkdownDirectory(RESEARCH_DIR, 'Research'));
   allFiles.push(...scanMarkdownDirectory(REPORTS_DIR, 'Reports'));
   allFiles.push(...scanMarkdownDirectory(PROJECT_IDEAS_DIR, 'Project Ideas'));
+  allFiles.push(...scanMarkdownDirectory(MISCELLANEOUS_DIR, 'Miscellaneous'));
+  allFiles.push(...scanMarkdownDirectoryRecursive(KNOWLEDGE_DIR, 'Knowledge'));
   allFiles.push(...scanPDFDirectory(REPORTS_DIR, 'Reports'));
+  allFiles.push(...scanPDFDirectory(MISCELLANEOUS_DIR, 'Miscellaneous'));
   
   // Scan skills directories (custom and bundled)
   allFiles.push(...scanSkillsDirectory(CUSTOM_SKILLS_DIR, 'Skills (Custom)'));
@@ -350,6 +404,8 @@ function isTrackedFile(filePath: string): boolean {
   const feStudyRoot = `${normalize(FE_STUDY_DIR)}${path.sep}`;
   const researchRoot = `${normalize(RESEARCH_DIR)}${path.sep}`;
   const projectIdeasRoot = `${normalize(PROJECT_IDEAS_DIR)}${path.sep}`;
+  const miscellaneousRoot = `${normalize(MISCELLANEOUS_DIR)}${path.sep}`;
+  const knowledgeRoot = `${normalize(KNOWLEDGE_DIR)}${path.sep}`;
   const customSkillsRoot = `${normalize(CUSTOM_SKILLS_DIR)}${path.sep}`;
   const bundledSkillsRoot = `${normalize(BUNDLED_SKILLS_DIR)}${path.sep}`;
 
@@ -366,6 +422,14 @@ function isTrackedFile(filePath: string): boolean {
   }
 
   if (normalizedPath.startsWith(projectIdeasRoot)) {
+    return basename.endsWith('.md');
+  }
+
+  if (normalizedPath.startsWith(miscellaneousRoot)) {
+    return basename.endsWith('.md') || basename.endsWith('.pdf');
+  }
+
+  if (normalizedPath.startsWith(knowledgeRoot)) {
     return basename.endsWith('.md');
   }
 
@@ -568,6 +632,8 @@ export function getCategoryForPath(filePath: string): string {
   const feStudyRoot = `${normalize(FE_STUDY_DIR)}${path.sep}`;
   const researchRoot = `${normalize(RESEARCH_DIR)}${path.sep}`;
   const projectIdeasRoot = `${normalize(PROJECT_IDEAS_DIR)}${path.sep}`;
+  const miscellaneousRoot = `${normalize(MISCELLANEOUS_DIR)}${path.sep}`;
+  const knowledgeRoot = `${normalize(KNOWLEDGE_DIR)}${path.sep}`;
   const reportsRoot = `${normalize(REPORTS_DIR)}${path.sep}`;
   const customSkillsRoot = `${normalize(CUSTOM_SKILLS_DIR)}${path.sep}`;
   const bundledSkillsRoot = `${normalize(BUNDLED_SKILLS_DIR)}${path.sep}`;
@@ -590,6 +656,14 @@ export function getCategoryForPath(filePath: string): string {
 
   if (normalizedPath.startsWith(projectIdeasRoot)) {
     return 'Project Ideas';
+  }
+
+  if (normalizedPath.startsWith(miscellaneousRoot)) {
+    return 'Miscellaneous';
+  }
+
+  if (normalizedPath.startsWith(knowledgeRoot)) {
+    return 'Knowledge';
   }
 
   if (normalizedPath.startsWith(customSkillsRoot)) {
@@ -635,6 +709,8 @@ export function isAllowedFilePath(filePath: string): boolean {
     normalize(RESEARCH_DIR),
     normalize(REPORTS_DIR),
     normalize(PROJECT_IDEAS_DIR),
+    normalize(MISCELLANEOUS_DIR),
+    normalize(KNOWLEDGE_DIR),
     normalize(CUSTOM_SKILLS_DIR),
     normalize(BUNDLED_SKILLS_DIR),
   ];

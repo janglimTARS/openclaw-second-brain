@@ -59,13 +59,13 @@ export const OC_KNOWLEDGE_DIR = resolveConfigPath(path.join(WORKSPACE_ROOT, 'kno
 
 // --- Hermes directories (active/migrated content) ---
 export const MEMORY_DIR = resolveConfigPath(
-  process.env.OPENCLAW_MEMORY_DIR || path.join(HERMES_WORKSPACE, 'memory')
+  path.join(HERMES_HOME, 'memory')
 );
 export const CONVERSATIONS_DIR = resolveConfigPath(
-  process.env.OPENCLAW_CONVERSATIONS_DIR || path.join(HERMES_WORKSPACE, 'conversations')
+  path.join(HERMES_WORKSPACE, 'conversations')
 );
 export const SESSIONS_DIR = resolveConfigPath(
-  process.env.OPENCLAW_SESSIONS_DIR || path.join(HERMES_HOME, 'sessions')
+  path.join(HERMES_HOME, 'sessions')
 );
 export const GOLF_DIR = resolveConfigPath(path.join(HERMES_WORKSPACE, 'golf'));
 export const FE_STUDY_DIR = resolveConfigPath(path.join(HERMES_WORKSPACE, 'fe-study'));
@@ -78,7 +78,7 @@ export const KNOWLEDGE_DIR = resolveConfigPath(path.join(HERMES_WORKSPACE, 'know
 // Custom skills (local) and bundled OpenClaw skills
 const DEFAULT_OPENCLAW_SKILLS = '/opt/homebrew/lib/node_modules/openclaw/skills';
 export const CUSTOM_SKILLS_DIR = resolveConfigPath(
-  path.join(WORKSPACE_ROOT, 'skills')
+  path.join(HERMES_HOME, 'skills')
 );
 export const BUNDLED_SKILLS_DIR = resolveConfigPath(DEFAULT_OPENCLAW_SKILLS);
 
@@ -363,61 +363,51 @@ function scanAllFiles(): FileNode[] {
   // Scan both legacy OpenClaw and active Hermes roots for dual visibility
   // Memory
   allFiles.push(...scanMarkdownDirectory(OC_MEMORY_DIR, 'Memory'));
-  allFiles.push(...scanMarkdownDirectory(MEMORY_DIR, 'Memory'));
+  allFiles.push(...scanMarkdownDirectory(MEMORY_DIR, 'Hermes Memory'));
 
   // Conversations
   allFiles.push(...scanMarkdownDirectory(OC_CONVERSATIONS_DIR, 'Conversations'));
-  allFiles.push(...scanMarkdownDirectory(CONVERSATIONS_DIR, 'Conversations'));
+  allFiles.push(...scanMarkdownDirectory(CONVERSATIONS_DIR, 'Hermes Conversations'));
 
   // Golf
   allFiles.push(...scanMarkdownDirectory(OC_GOLF_DIR, 'Golf'));
-  allFiles.push(...scanMarkdownDirectory(GOLF_DIR, 'Golf'));
+  allFiles.push(...scanMarkdownDirectory(GOLF_DIR, 'Hermes Golf'));
 
   // FE Study
   allFiles.push(...scanMarkdownDirectoryRecursive(OC_FE_STUDY_DIR, 'FE Study'));
-  allFiles.push(...scanMarkdownDirectoryRecursive(FE_STUDY_DIR, 'FE Study'));
+  allFiles.push(...scanMarkdownDirectoryRecursive(FE_STUDY_DIR, 'Hermes FE Study'));
 
   // Research
   allFiles.push(...scanMarkdownDirectory(OC_RESEARCH_DIR, 'Research'));
-  allFiles.push(...scanMarkdownDirectory(RESEARCH_DIR, 'Research'));
+  allFiles.push(...scanMarkdownDirectory(RESEARCH_DIR, 'Hermes Research'));
 
   // Reports (PDFs included)
   allFiles.push(...scanMarkdownDirectory(OC_REPORTS_DIR, 'Reports'));
-  allFiles.push(...scanMarkdownDirectory(REPORTS_DIR, 'Reports'));
+  allFiles.push(...scanMarkdownDirectory(REPORTS_DIR, 'Hermes Reports'));
 
   // Project Ideas
   allFiles.push(...scanMarkdownDirectory(OC_PROJECT_IDEAS_DIR, 'Project Ideas'));
-  allFiles.push(...scanMarkdownDirectory(PROJECT_IDEAS_DIR, 'Project Ideas'));
+  allFiles.push(...scanMarkdownDirectory(PROJECT_IDEAS_DIR, 'Hermes Project Ideas'));
 
   // Miscellaneous
   allFiles.push(...scanMarkdownDirectory(OC_MISCELLANEOUS_DIR, 'Miscellaneous'));
-  allFiles.push(...scanMarkdownDirectory(MISCELLANEOUS_DIR, 'Miscellaneous'));
+  allFiles.push(...scanMarkdownDirectory(MISCELLANEOUS_DIR, 'Hermes Miscellaneous'));
 
   // Knowledge
   allFiles.push(...scanMarkdownDirectoryRecursive(OC_KNOWLEDGE_DIR, 'Knowledge'));
-  allFiles.push(...scanMarkdownDirectoryRecursive(KNOWLEDGE_DIR, 'Knowledge'));
+  allFiles.push(...scanMarkdownDirectoryRecursive(KNOWLEDGE_DIR, 'Hermes Knowledge'));
 
   // PDFs
   allFiles.push(...scanPDFDirectory(OC_REPORTS_DIR, 'Reports'));
-  allFiles.push(...scanPDFDirectory(REPORTS_DIR, 'Reports'));
+  allFiles.push(...scanPDFDirectory(REPORTS_DIR, 'Hermes Reports'));
   allFiles.push(...scanPDFDirectory(OC_MISCELLANEOUS_DIR, 'Miscellaneous'));
-  allFiles.push(...scanPDFDirectory(MISCELLANEOUS_DIR, 'Miscellaneous'));
+  allFiles.push(...scanPDFDirectory(MISCELLANEOUS_DIR, 'Hermes Miscellaneous'));
 
-  // Skills (only current Hermes skills — bundled is global)
-  allFiles.push(...scanSkillsDirectory(CUSTOM_SKILLS_DIR, 'Skills (Custom)'));
+  // Skills (bundled global, custom Hermes)
+  allFiles.push(...scanSkillsDirectory(CUSTOM_SKILLS_DIR, 'Skills'));
   allFiles.push(...scanSkillsDirectory(BUNDLED_SKILLS_DIR, 'Skills (Bundled)'));
 
-  // Long-term note (both roots)
-  const longTermPath = path.join(WORKSPACE_ROOT, LONG_TERM_FILE);
-  if (fs.existsSync(longTermPath)) {
-    allFiles.push({
-      name: LONG_TERM_FILE,
-      path: longTermPath,
-      category: 'Long-term',
-      type: 'file',
-    });
-  }
-
+  // Workspace Docs (both roots)
   for (const docName of WORKSPACE_DOCS) {
     const docPath = path.join(WORKSPACE_ROOT, docName);
     const hermesDocPath = path.join(HERMES_WORKSPACE, docName);
@@ -435,18 +425,38 @@ function scanAllFiles(): FileNode[] {
       allFiles.push({
         name: docName,
         path: hermesDocPath,
-        category: 'Workspace Docs',
+        category: 'Hermes Workspace Docs',
         type: 'file',
       });
     }
   }
 
-  allFiles.push(...scanWorkspaceReports());
+  // Long-term note (both roots)
+  const longTermPath = path.join(WORKSPACE_ROOT, LONG_TERM_FILE);
+  if (fs.existsSync(longTermPath)) {
+    allFiles.push({
+      name: LONG_TERM_FILE,
+      path: longTermPath,
+      category: 'Long-term',
+      type: 'file',
+    });
+  }
+
+  const hermesLongTermPath = path.join(HERMES_WORKSPACE, LONG_TERM_FILE);
+  if (fs.existsSync(hermesLongTermPath)) {
+    allFiles.push({
+      name: LONG_TERM_FILE,
+      path: hermesLongTermPath,
+      category: 'Hermes Long-term',
+      type: 'file',
+    });
+  }
+
+  // Session transcripts (OpenClaw uses workspace conversations; Hermes uses sessions/)
   allFiles.push(...scanSessionTranscripts());
 
   return allFiles;
 }
-
 function isTrackedFile(filePath: string): boolean {
   const normalizedPath = normalize(filePath);
   const basename = path.basename(normalizedPath);

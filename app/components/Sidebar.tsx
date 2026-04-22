@@ -13,21 +13,32 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-const categoryOrder = ['Memory', 'Conversations', 'Golf', 'FE Study', 'Research', 'Project Ideas', 'Knowledge', 'Miscellaneous', 'Skills (Custom)', 'Skills (Bundled)', 'Long-term', 'Workspace Docs', 'Reports', 'Sessions'];
+const categoryOrder = ['Memory', 'Hermes Memory', 'Conversations', 'Hermes Conversations', 'Golf', 'Hermes Golf', 'FE Study', 'Hermes FE Study', 'Research', 'Hermes Research', 'Project Ideas', 'Hermes Project Ideas', 'Knowledge', 'Hermes Knowledge', 'Miscellaneous', 'Hermes Miscellaneous', 'Skills', 'Skills (Bundled)', 'Long-term', 'Hermes Long-term', 'Workspace Docs', 'Hermes Workspace Docs', 'Reports', 'Hermes Reports', 'Sessions'];
 const categoryIcons: Record<string, string> = {
   'Memory': '🧠',
+  'Hermes Memory': '🧠',
   'Conversations': '💬',
+  'Hermes Conversations': '💬',
   'Golf': '⛳',
+  'Hermes Golf': '⛳',
   'FE Study': '📚',
+  'Hermes FE Study': '📚',
   'Research': '🔍',
+  'Hermes Research': '🔍',
   'Project Ideas': '💡',
+  'Hermes Project Ideas': '💡',
   'Knowledge': '🧭',
+  'Hermes Knowledge': '🧭',
   'Miscellaneous': '📁',
-  'Skills (Custom)': '🔧',
+  'Hermes Miscellaneous': '📁',
+  'Skills': '🔧',
   'Skills (Bundled)': '📦',
   'Long-term': '💾',
+  'Hermes Long-term': '💾',
   'Workspace Docs': '📄',
+  'Hermes Workspace Docs': '📄',
   'Reports': '📊',
+  'Hermes Reports': '📊',
   'Sessions': '🗂️',
 };
 

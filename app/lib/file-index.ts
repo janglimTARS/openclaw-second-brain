@@ -360,22 +360,54 @@ function scanSessionTranscripts(): FileNode[] {
 function scanAllFiles(): FileNode[] {
   const allFiles: FileNode[] = [];
 
+  // Scan both legacy OpenClaw and active Hermes roots for dual visibility
+  // Memory
+  allFiles.push(...scanMarkdownDirectory(OC_MEMORY_DIR, 'Memory'));
   allFiles.push(...scanMarkdownDirectory(MEMORY_DIR, 'Memory'));
+
+  // Conversations
+  allFiles.push(...scanMarkdownDirectory(OC_CONVERSATIONS_DIR, 'Conversations'));
   allFiles.push(...scanMarkdownDirectory(CONVERSATIONS_DIR, 'Conversations'));
+
+  // Golf
+  allFiles.push(...scanMarkdownDirectory(OC_GOLF_DIR, 'Golf'));
   allFiles.push(...scanMarkdownDirectory(GOLF_DIR, 'Golf'));
+
+  // FE Study
+  allFiles.push(...scanMarkdownDirectoryRecursive(OC_FE_STUDY_DIR, 'FE Study'));
   allFiles.push(...scanMarkdownDirectoryRecursive(FE_STUDY_DIR, 'FE Study'));
+
+  // Research
+  allFiles.push(...scanMarkdownDirectory(OC_RESEARCH_DIR, 'Research'));
   allFiles.push(...scanMarkdownDirectory(RESEARCH_DIR, 'Research'));
+
+  // Reports (PDFs included)
+  allFiles.push(...scanMarkdownDirectory(OC_REPORTS_DIR, 'Reports'));
   allFiles.push(...scanMarkdownDirectory(REPORTS_DIR, 'Reports'));
+
+  // Project Ideas
+  allFiles.push(...scanMarkdownDirectory(OC_PROJECT_IDEAS_DIR, 'Project Ideas'));
   allFiles.push(...scanMarkdownDirectory(PROJECT_IDEAS_DIR, 'Project Ideas'));
+
+  // Miscellaneous
+  allFiles.push(...scanMarkdownDirectory(OC_MISCELLANEOUS_DIR, 'Miscellaneous'));
   allFiles.push(...scanMarkdownDirectory(MISCELLANEOUS_DIR, 'Miscellaneous'));
+
+  // Knowledge
+  allFiles.push(...scanMarkdownDirectoryRecursive(OC_KNOWLEDGE_DIR, 'Knowledge'));
   allFiles.push(...scanMarkdownDirectoryRecursive(KNOWLEDGE_DIR, 'Knowledge'));
+
+  // PDFs
+  allFiles.push(...scanPDFDirectory(OC_REPORTS_DIR, 'Reports'));
   allFiles.push(...scanPDFDirectory(REPORTS_DIR, 'Reports'));
+  allFiles.push(...scanPDFDirectory(OC_MISCELLANEOUS_DIR, 'Miscellaneous'));
   allFiles.push(...scanPDFDirectory(MISCELLANEOUS_DIR, 'Miscellaneous'));
-  
-  // Scan skills directories (custom and bundled)
+
+  // Skills (only current Hermes skills — bundled is global)
   allFiles.push(...scanSkillsDirectory(CUSTOM_SKILLS_DIR, 'Skills (Custom)'));
   allFiles.push(...scanSkillsDirectory(BUNDLED_SKILLS_DIR, 'Skills (Bundled)'));
 
+  // Long-term note (both roots)
   const longTermPath = path.join(WORKSPACE_ROOT, LONG_TERM_FILE);
   if (fs.existsSync(longTermPath)) {
     allFiles.push({

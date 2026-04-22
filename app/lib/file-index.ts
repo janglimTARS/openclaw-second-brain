@@ -23,6 +23,8 @@ function resolveConfigPath(inputPath: string): string {
 
 const DEFAULT_OPENCLAW_HOME = path.join(os.homedir(), '.openclaw');
 const DEFAULT_WORKSPACE_ROOT = path.join(DEFAULT_OPENCLAW_HOME, 'workspace');
+const DEFAULT_HERMES_HOME = path.join(os.homedir(), '.hermes');
+const DEFAULT_HERMES_WORKSPACE_ROOT = path.join(DEFAULT_HERMES_HOME, 'workspace');
 
 export const OPENCLAW_HOME = resolveConfigPath(
   process.env.OPENCLAW_HOME || DEFAULT_OPENCLAW_HOME
@@ -30,36 +32,48 @@ export const OPENCLAW_HOME = resolveConfigPath(
 export const WORKSPACE_ROOT = resolveConfigPath(
   process.env.OPENCLAW_WORKSPACE || DEFAULT_WORKSPACE_ROOT
 );
-export const MEMORY_DIR = resolveConfigPath(
+export const HERMES_HOME = resolveConfigPath(
+  process.env.HERMES_HOME || DEFAULT_HERMES_HOME
+);
+export const HERMES_WORKSPACE = resolveConfigPath(
+  process.env.HERMES_WORKSPACE || DEFAULT_HERMES_WORKSPACE_ROOT
+);
+
+// --- OpenClaw directories (legacy, keep visible) ---
+export const OC_MEMORY_DIR = resolveConfigPath(
   process.env.OPENCLAW_MEMORY_DIR || path.join(WORKSPACE_ROOT, 'memory')
 );
-export const CONVERSATIONS_DIR = resolveConfigPath(
+export const OC_CONVERSATIONS_DIR = resolveConfigPath(
   process.env.OPENCLAW_CONVERSATIONS_DIR || path.join(WORKSPACE_ROOT, 'conversations')
 );
-export const SESSIONS_DIR = resolveConfigPath(
+export const OC_SESSIONS_DIR = resolveConfigPath(
   process.env.OPENCLAW_SESSIONS_DIR || path.join(OPENCLAW_HOME, 'agents', 'main', 'sessions')
 );
-export const GOLF_DIR = resolveConfigPath(
-  path.join(WORKSPACE_ROOT, 'golf')
+export const OC_GOLF_DIR = resolveConfigPath(path.join(WORKSPACE_ROOT, 'golf'));
+export const OC_FE_STUDY_DIR = resolveConfigPath(path.join(WORKSPACE_ROOT, 'fe-study'));
+export const OC_RESEARCH_DIR = resolveConfigPath(path.join(WORKSPACE_ROOT, 'research'));
+export const OC_REPORTS_DIR = resolveConfigPath(path.join(WORKSPACE_ROOT, 'reports'));
+export const OC_PROJECT_IDEAS_DIR = resolveConfigPath(path.join(WORKSPACE_ROOT, 'project-ideas'));
+export const OC_MISCELLANEOUS_DIR = resolveConfigPath(path.join(WORKSPACE_ROOT, 'miscellaneous'));
+export const OC_KNOWLEDGE_DIR = resolveConfigPath(path.join(WORKSPACE_ROOT, 'knowledge'));
+
+// --- Hermes directories (active/migrated content) ---
+export const MEMORY_DIR = resolveConfigPath(
+  process.env.OPENCLAW_MEMORY_DIR || path.join(HERMES_WORKSPACE, 'memory')
 );
-export const FE_STUDY_DIR = resolveConfigPath(
-  path.join(WORKSPACE_ROOT, 'fe-study')
+export const CONVERSATIONS_DIR = resolveConfigPath(
+  process.env.OPENCLAW_CONVERSATIONS_DIR || path.join(HERMES_WORKSPACE, 'conversations')
 );
-export const RESEARCH_DIR = resolveConfigPath(
-  path.join(WORKSPACE_ROOT, 'research')
+export const SESSIONS_DIR = resolveConfigPath(
+  process.env.OPENCLAW_SESSIONS_DIR || path.join(HERMES_HOME, 'sessions')
 );
-export const REPORTS_DIR = resolveConfigPath(
-  path.join(WORKSPACE_ROOT, 'reports')
-);
-export const PROJECT_IDEAS_DIR = resolveConfigPath(
-  path.join(WORKSPACE_ROOT, 'project-ideas')
-);
-export const MISCELLANEOUS_DIR = resolveConfigPath(
-  path.join(WORKSPACE_ROOT, 'miscellaneous')
-);
-export const KNOWLEDGE_DIR = resolveConfigPath(
-  path.join(WORKSPACE_ROOT, 'knowledge')
-);
+export const GOLF_DIR = resolveConfigPath(path.join(HERMES_WORKSPACE, 'golf'));
+export const FE_STUDY_DIR = resolveConfigPath(path.join(HERMES_WORKSPACE, 'fe-study'));
+export const RESEARCH_DIR = resolveConfigPath(path.join(HERMES_WORKSPACE, 'research'));
+export const REPORTS_DIR = resolveConfigPath(path.join(HERMES_WORKSPACE, 'reports'));
+export const PROJECT_IDEAS_DIR = resolveConfigPath(path.join(HERMES_WORKSPACE, 'project-ideas'));
+export const MISCELLANEOUS_DIR = resolveConfigPath(path.join(HERMES_WORKSPACE, 'miscellaneous'));
+export const KNOWLEDGE_DIR = resolveConfigPath(path.join(HERMES_WORKSPACE, 'knowledge'));
 
 // Custom skills (local) and bundled OpenClaw skills
 const DEFAULT_OPENCLAW_SKILLS = '/opt/homebrew/lib/node_modules/openclaw/skills';
@@ -85,6 +99,7 @@ const EXCLUDED_REPORT_NAMES = new Set<string>([...WORKSPACE_DOCS, LONG_TERM_FILE
 
 const WATCH_TARGETS = [
   { target: WORKSPACE_ROOT, depth: 0 },
+  { target: HERMES_WORKSPACE, depth: 0 },
   { target: MEMORY_DIR, depth: 5 },
   { target: CONVERSATIONS_DIR, depth: 5 },
   { target: SESSIONS_DIR, depth: 2 },
@@ -114,7 +129,8 @@ function isHidden(name: string): boolean {
 }
 
 function isWorkspaceRootFile(filePath: string): boolean {
-  return normalize(path.dirname(filePath)) === normalize(WORKSPACE_ROOT);
+  const dir = normalize(path.dirname(filePath));
+  return dir === normalize(WORKSPACE_ROOT) || dir === normalize(HERMES_WORKSPACE);
 }
 
 function scanMarkdownDirectory(dirPath: string, category: string): FileNode[] {
@@ -276,31 +292,33 @@ function scanSkillsDirectory(dirPath: string, category: string): FileNode[] {
 function scanWorkspaceReports(): FileNode[] {
   const files: FileNode[] = [];
 
-  if (!fs.existsSync(WORKSPACE_ROOT)) {
-    return files;
-  }
-
-  try {
-    const entries = fs.readdirSync(WORKSPACE_ROOT, { withFileTypes: true });
-
-    for (const entry of entries) {
-      if (!entry.isFile()) {
-        continue;
-      }
-
-      if (isHidden(entry.name) || !entry.name.endsWith('.md') || EXCLUDED_REPORT_NAMES.has(entry.name)) {
-        continue;
-      }
-
-      files.push({
-        name: entry.name,
-        path: path.join(WORKSPACE_ROOT, entry.name),
-        category: 'Reports',
-        type: 'file',
-      });
+  for (const root of [WORKSPACE_ROOT, HERMES_WORKSPACE]) {
+    if (!fs.existsSync(root)) {
+      continue;
     }
-  } catch (error) {
-    console.error('[second-brain] Failed to scan workspace reports:', error);
+
+    try {
+      const entries = fs.readdirSync(root, { withFileTypes: true });
+
+      for (const entry of entries) {
+        if (!entry.isFile()) {
+          continue;
+        }
+
+        if (isHidden(entry.name) || !entry.name.endsWith('.md') || EXCLUDED_REPORT_NAMES.has(entry.name)) {
+          continue;
+        }
+
+        files.push({
+          name: entry.name,
+          path: path.join(root, entry.name),
+          category: 'Reports',
+          type: 'file',
+        });
+      }
+    } catch (error) {
+      console.error(`[second-brain] Failed to scan workspace reports in ${root}:`, error);
+    }
   }
 
   return files;
@@ -370,17 +388,25 @@ function scanAllFiles(): FileNode[] {
 
   for (const docName of WORKSPACE_DOCS) {
     const docPath = path.join(WORKSPACE_ROOT, docName);
+    const hermesDocPath = path.join(HERMES_WORKSPACE, docName);
 
-    if (!fs.existsSync(docPath)) {
-      continue;
+    if (fs.existsSync(docPath)) {
+      allFiles.push({
+        name: docName,
+        path: docPath,
+        category: 'Workspace Docs',
+        type: 'file',
+      });
     }
 
-    allFiles.push({
-      name: docName,
-      path: docPath,
-      category: 'Workspace Docs',
-      type: 'file',
-    });
+    if (fs.existsSync(hermesDocPath)) {
+      allFiles.push({
+        name: docName,
+        path: hermesDocPath,
+        category: 'Workspace Docs',
+        type: 'file',
+      });
+    }
   }
 
   allFiles.push(...scanWorkspaceReports());

@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Sidebar, { CRON_CALENDAR_PATH } from './components/Sidebar';
+import Sidebar, { CRON_CALENDAR_PATH, HEALTH_DASHBOARD_PATH } from './components/Sidebar';
 import ContentArea from './components/ContentArea';
 import CronCalendar from './components/CronCalendar';
+import HealthDashboard from './components/HealthDashboard';
 import SearchModal from './components/SearchModal';
 import { FileNode } from './types';
 
@@ -163,6 +164,8 @@ export default function Home() {
       <div className="flex-1 flex flex-col overflow-hidden pt-14 md:pt-0">
         {selectedFile === CRON_CALENDAR_PATH ? (
           <CronCalendar />
+        ) : selectedFile === HEALTH_DASHBOARD_PATH ? (
+          <HealthDashboard />
         ) : (
           <ContentArea selectedFile={selectedFile} refreshVersion={contentRefreshVersion} scrollToLine={scrollToLine} onScrollComplete={() => setScrollToLine(undefined)} />
         )}

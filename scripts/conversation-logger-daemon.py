@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
 Conversation Logger Daemon
-Watches OpenClaw session transcript files and writes clean markdown conversation logs.
+Watches session transcript files and writes clean markdown conversation logs.
 
 Environment variables (all optional):
-- OPENCLAW_HOME (default: ~/.openclaw)
-- OPENCLAW_WORKSPACE (default: <OPENCLAW_HOME>/workspace)
-- OPENCLAW_SESSIONS_DIR (default: <OPENCLAW_HOME>/agents/main/sessions)
-- OPENCLAW_CONVERSATIONS_DIR (default: <OPENCLAW_WORKSPACE>/conversations)
-- OPENCLAW_CONVERSATION_STATE_FILE (default: <OPENCLAW_CONVERSATIONS_DIR>/.state.json)
-- OPENCLAW_MAIN_SESSION_ID (fallback session UUID, optional)
-- OPENCLAW_TIMEZONE (default: system local timezone)
-- OPENCLAW_LOGGER_POLL_SECONDS (default: 1)
-- OPENCLAW_LOGGER_MAX_MESSAGE_LENGTH (default: 2000)
+- HERMES_HOME (default: ~/.hermes)
+- HERMES_WORKSPACE (default: <HERMES_HOME>/workspace)
+- HERMES_SESSIONS_DIR (default: <HERMES_HOME>/sessions)
+- HERMES_CONVERSATIONS_DIR (default: <HERMES_WORKSPACE>/conversations)
+- HERMES_CONVERSATION_STATE_FILE (default: <HERMES_CONVERSATIONS_DIR>/.state.json)
+- HERMES_MAIN_SESSION_ID (fallback session UUID, optional)
+- HERMES_TIMEZONE (default: system local timezone)
+- HERMES_LOGGER_POLL_SECONDS (default: 1)
+- HERMES_LOGGER_MAX_MESSAGE_LENGTH (default: 2000)
+
+Legacy fallbacks (OPENCLAW_*) still work but are deprecated.
 """
 
 import json
@@ -29,15 +31,37 @@ def resolve_path(value: str) -> Path:
     return Path(os.path.expanduser(value)).resolve()
 
 
+def env(key: str, default: str = "") -> str:
+    """Check HERMES_ prefix first, then OPENCLAW_ prefix, then default."""
+    hermes_key = key.replace("OPENCLAW_", "HERMES_")
+    val = os.getenv(hermes_key, "").strip()
+    if val:
+        return val
+    val = os.getenv(key, "").strip()
+    if val:
+        return val
+    return default
+
+
+def env_int(key: str, default: int) -> int:
+    val = env(key, "")
+    return int(val) if val else default
+
+
+def env_float(key: str, default: float) -> float:
+    val = env(key, "")
+    return float(val) if val else default
+
+
 def load_timezone() -> timezone | ZoneInfo:
-    tz_name = os.getenv("OPENCLAW_TIMEZONE", "").strip()
+    tz_name = env("OPENCLAW_TIMEZONE", "").strip()
 
     if tz_name:
         try:
             return ZoneInfo(tz_name)
-        except Exception as exc:  # pragma: no cover - defensive
+        except Exception as exc:
             print(
-                f"[daemon] Warning: Invalid OPENCLAW_TIMEZONE={tz_name!r}: {exc}. Falling back to system timezone.",
+                f"[daemon] Warning: Invalid timezone={tz_name!r}: {exc}. Falling back to system timezone.",
                 file=sys.stderr,
             )
 
@@ -46,21 +70,15 @@ def load_timezone() -> timezone | ZoneInfo:
 
 
 # Configuration
-OPENCLAW_HOME = resolve_path(os.getenv("OPENCLAW_HOME", "~/.openclaw"))
-WORKSPACE_DIR = resolve_path(os.getenv("OPENCLAW_WORKSPACE", str(OPENCLAW_HOME / "workspace")))
-SESSIONS_DIR = resolve_path(
-    os.getenv("OPENCLAW_SESSIONS_DIR", str(OPENCLAW_HOME / "agents" / "main" / "sessions"))
-)
-CONVERSATIONS_DIR = resolve_path(
-    os.getenv("OPENCLAW_CONVERSATIONS_DIR", str(WORKSPACE_DIR / "conversations"))
-)
-STATE_FILE = resolve_path(
-    os.getenv("OPENCLAW_CONVERSATION_STATE_FILE", str(CONVERSATIONS_DIR / ".state.json"))
-)
-MAIN_SESSION_ID = os.getenv("OPENCLAW_MAIN_SESSION_ID", "").strip()
+HOME_DIR = resolve_path(env("OPENCLAW_HOME", "~/.openclaw"))  # defaults to .hermes via HERMES_HOME env in plist
+WORKSPACE_DIR = resolve_path(env("OPENCLAW_WORKSPACE", str(HOME_DIR / "workspace")))
+SESSIONS_DIR = resolve_path(env("OPENCLAW_SESSIONS_DIR", str(HOME_DIR / "sessions")))
+CONVERSATIONS_DIR = resolve_path(env("OPENCLAW_CONVERSATIONS_DIR", str(WORKSPACE_DIR / "conversations")))
+STATE_FILE = resolve_path(env("OPENCLAW_CONVERSATION_STATE_FILE", str(CONVERSATIONS_DIR / ".state.json")))
+MAIN_SESSION_ID = env("OPENCLAW_MAIN_SESSION_ID", "").strip()
 LOCAL_TZ = load_timezone()
-MAX_MESSAGE_LENGTH = int(os.getenv("OPENCLAW_LOGGER_MAX_MESSAGE_LENGTH", "2000"))
-POLL_INTERVAL_SECONDS = float(os.getenv("OPENCLAW_LOGGER_POLL_SECONDS", "1"))
+MAX_MESSAGE_LENGTH = env_int("OPENCLAW_LOGGER_MAX_MESSAGE_LENGTH", 2000)
+POLL_INTERVAL_SECONDS = env_float("OPENCLAW_LOGGER_POLL_SECONDS", 1)
 
 # Patterns to skip
 SKIP_PATTERNS = [

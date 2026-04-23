@@ -4,6 +4,7 @@ import { FileNode } from '../types';
 import { useState } from 'react';
 
 export const CRON_CALENDAR_PATH = '__cron_calendar__';
+export const HEALTH_DASHBOARD_PATH = '__health_dashboard__';
 
 interface SidebarProps {
   files: FileNode[];
@@ -13,32 +14,20 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-const categoryOrder = ['Memory', 'Hermes Memory', 'Conversations', 'Hermes Conversations', 'Golf', 'Hermes Golf', 'FE Study', 'Hermes FE Study', 'Research', 'Hermes Research', 'Project Ideas', 'Hermes Project Ideas', 'Knowledge', 'Hermes Knowledge', 'Miscellaneous', 'Hermes Miscellaneous', 'Skills', 'Skills (Bundled)', 'Long-term', 'Hermes Long-term', 'Workspace Docs', 'Hermes Workspace Docs', 'Reports', 'Hermes Reports', 'Sessions'];
+const categoryOrder = ['Memory', 'Conversations', 'Golf', 'FE Study', 'Research', 'Project Ideas', 'Knowledge', 'Miscellaneous', 'Skills', 'Long-term', 'Workspace Docs', 'Reports', 'Sessions'];
 const categoryIcons: Record<string, string> = {
   'Memory': '🧠',
-  'Hermes Memory': '🧠',
   'Conversations': '💬',
-  'Hermes Conversations': '💬',
   'Golf': '⛳',
-  'Hermes Golf': '⛳',
   'FE Study': '📚',
-  'Hermes FE Study': '📚',
   'Research': '🔍',
-  'Hermes Research': '🔍',
   'Project Ideas': '💡',
-  'Hermes Project Ideas': '💡',
   'Knowledge': '🧭',
-  'Hermes Knowledge': '🧭',
   'Miscellaneous': '📁',
-  'Hermes Miscellaneous': '📁',
   'Skills': '🔧',
-  'Skills (Bundled)': '📦',
   'Long-term': '💾',
-  'Hermes Long-term': '💾',
   'Workspace Docs': '📄',
-  'Hermes Workspace Docs': '📄',
   'Reports': '📊',
-  'Hermes Reports': '📊',
   'Sessions': '🗂️',
 };
 
@@ -103,6 +92,21 @@ export default function Sidebar({ files, onFileSelect, selectedFile, isOpen = fa
           >
             <span>🕐</span>
             <span className="font-semibold tracking-wide">Cron Calendar</span>
+          </button>
+        </div>
+
+        {/* Health Dashboard nav item */}
+        <div>
+          <button
+            onClick={() => onFileSelect(HEALTH_DASHBOARD_PATH)}
+            className={`flex items-center gap-2.5 w-full text-left text-sm px-3 py-2.5 rounded-lg border transition-colors ${
+              selectedFile === HEALTH_DASHBOARD_PATH
+                ? 'bg-terminal-panel border-terminal-green/60 text-terminal-text shadow-sm'
+                : 'border-terminal-border/50 text-terminal-muted hover:bg-terminal-panel hover:text-terminal-text'
+            }`}
+          >
+            <span>🛰️</span>
+            <span className="font-semibold tracking-wide">Mission Control</span>
           </button>
         </div>
 
